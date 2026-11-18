@@ -73,8 +73,6 @@ cp .env.example .env      # then edit .env (see below)
 npm start
 ```
 
-Open http://localhost:3000 for the site and http://localhost:3000/admin for the dashboard.
-
 ### Environment variables
 
 Copy `.env.example` to `.env`. Everything is optional except `ADMIN_PASSWORD`, which turns the admin on.
