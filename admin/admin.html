@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Admin | Naganika, Nakuli Numerology</title>
+<style>
+body{font-family:system-ui,sans-serif;margin:0;background:#f5f7fa;color:#1f2933}
+header{background:#1d4ed8;color:#fff;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+main{padding:20px;max-width:1300px;margin:auto}
+.tabs button{padding:8px 16px;border:0;background:#fff;cursor:pointer;border-radius:8px 8px 0 0;font-weight:600}
+.tabs button.on{background:#1d4ed8;color:#fff}
+table{width:100%;border-collapse:collapse;background:#fff;font-size:.88rem}
+th,td{padding:8px 10px;border-bottom:1px solid #eee;text-align:left;vertical-align:top}
+th{background:#e4ebf5}
+.wrap{overflow-x:auto}
+select,input,button{font:inherit}
+.btn{background:#f59e0b;border:0;padding:6px 12px;border-radius:6px;cursor:pointer;color:#1f2933;font-weight:700;text-decoration:none}
+tr.new{background:#fff3cd}tr.contacted{background:#d9ecff}tr.done{background:#e0f5e6}
+.stats{display:flex;gap:14px;flex-wrap:wrap;margin:14px 0}
+.stat{background:#fff;padding:12px 20px;border-radius:10px;font-weight:700}
+.panel{background:#fff;padding:16px;border-radius:0 10px 10px 10px;margin-bottom:16px}
+.panel input,.panel textarea{width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid #cbd2d9;border-radius:8px;margin:4px 0 10px}
+.panel label{font-weight:600;font-size:.9rem}
+.vcard{display:inline-block;width:230px;vertical-align:top;margin:0 12px 12px 0;background:#fff;border-radius:10px;padding:10px;box-shadow:0 1px 6px rgba(0,0,0,.1)}
+.vcard img{width:100%;border-radius:6px}
+.note{color:#616e7c;font-size:.85rem}
+.flash{padding:8px 12px;border-radius:8px;margin-bottom:10px;background:#e6f6ec;color:#1b7f43}
+.flash.bad{background:#fdecea;color:#b3261e}
+</style>
+</head>
+<body>
+<header><b>Admin Dashboard</b><span><a class="btn" href="/admin/export.csv">Export CSV</a> <button class="btn" onclick="load()">Refresh</button> <button class="btn" onclick="logout()">Log out</button></span></header>
+<main>
+  <div class="stats" id="stats"></div>
+  <div class="tabs"><button class="on" data-t="enq">Enquiries</button><button data-t="blogs">Blogs</button><button data-t="vids">YouTube videos</button><button data-t="settings">Settings</button><button data-t="pay">Payments</button><button data-t="chat">Chatbot leads</button></div>
+  <div class="wrap" id="view"></div>
+</main>
+<script>
+var D = { enquiries: [], payments: [], chats: [], blogs: [], videos: [], settings: {} }, tab = 'enq', editing = null, flashMsg = null;
+var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+function api(url, method, body) {
+  return fetch(url, { method: method || 'GET', headers: { 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined })
+    .then(function (r) { if (r.status === 401) { location.href = '/admin/login'; throw 0; } return r.json(); });
+}
+function load() {
+  return Promise.all([api('/admin/api/data'), api('/admin/api/blogs'), api('/admin/api/videos'), fetch('/api/settings').then(function (r) { return r.json(); })])
+    .then(function (a) { D = Object.assign(a[0], { blogs: a[1], videos: a[2], settings: a[3] }); render(); }).catch(function () {});
+}
+function flash(t, bad) { flashMsg = { t: t, bad: bad }; render(); }
+function logout() { fetch('/admin/logout', { method: 'POST' }).then(function () { location.href = '/admin/login'; }); }
+function render() {
+  var n = D.enquiries.filter(function (e) { return e.status === 'new'; }).length;
+  var paid = D.payments.filter(function (p) { return p.status === 'paid'; });
+  document.getElementById('stats').innerHTML =
+    '<div class="stat">Enquiries: ' + D.enquiries.length + ' (' + n + ' new)</div>' +
+    '<div class="stat">Paid: ' + paid.length + ' (&#8377;' + paid.reduce(function (a, p) { return a + (p.amount || 0); }, 0) + ')</div>' +
+    '<div class="stat">Chat leads: ' + D.chats.length + '</div>';
+  var h = '';
+  if (tab === 'enq') {
+    h = '<table><tr><th>Received</th><th>Name</th><th>Contact</th><th>Service</th><th>Details</th><th>Status / notes</th><th></th></tr>' +
+      D.enquiries.map(function (e) {
+        return '<tr class="' + esc(e.status) + '"><td>' + new Date(e.received_at).toLocaleString() + '</td><td>' + esc(e.name) + '</td>' +
+          '<td>' + esc(e.phone) + (e.phone_verified ? ' &#10003;' : '') + '<br>' + esc(e.email) + '</td><td>' + esc(e.service) + '<br>' + esc(e.mode) + '</td>' +
+          '<td>DOB: ' + esc(e.dob || '-') + '<br>Pref: ' + esc(e.pref_date || '-') + '<br>' + esc(e.message) + '</td>' +
+          '<td><select id="s' + e.id + '">' + ['new', 'contacted', 'done'].map(function (s) { return '<option' + (s === e.status ? ' selected' : '') + '>' + s + '</option>'; }).join('') + '</select><br>' +
+          '<input id="n' + e.id + '" placeholder="notes" value="' + esc(e.notes) + '"></td>' +
+          '<td><button class="btn" onclick="saveE(\'' + e.id + '\')">Save</button> <button class="btn" onclick="delE(\'' + e.id + '\')">Delete</button></td></tr>';
+      }).join('') + '</table>';
+  } else if (tab === 'pay') {
+    h = '<table><tr><th>Date</th><th>Name</th><th>Service</th><th>Amount</th><th>Order</th><th>Payment</th><th>Status</th></tr>' +
+      D.payments.map(function (p) { return '<tr><td>' + new Date(p.created_at).toLocaleString() + '</td><td>' + esc(p.name) + '</td><td>' + esc(p.service) + '</td><td>&#8377;' + esc(p.amount) + '</td><td>' + esc(p.order_id) + '</td><td>' + esc(p.payment_id) + '</td><td>' + esc(p.status) + '</td></tr>'; }).join('') + '</table>';
+  } else if (tab === 'blogs') {
+    var b = editing || { title: '', summary: '', image: '', body: '', published: 1 };
+    h = '<div class="panel"><b>' + (editing ? 'Edit article' : 'Write a new article') + '</b><br>' +
+      '<label>Title</label><input id="b-title" maxlength="200" value="' + esc(b.title) + '">' +
+      '<label>Short summary (shown in the list)</label><input id="b-summary" maxlength="400" value="' + esc(b.summary) + '">' +
+      '<label>Cover image link (optional, https://... or img/filename.jpg)</label><input id="b-image" value="' + esc(b.image) + '">' +
+      '<label>Article text (leave a blank line between paragraphs)</label><textarea id="b-body" rows="10">' + esc(b.body) + '</textarea>' +
+      '<label><input type="checkbox" id="b-pub" style="width:auto"' + (b.published ? ' checked' : '') + '> Published (visible on the website)</label><br><br>' +
+      '<button class="btn" onclick="saveBlog()">' + (editing ? 'Save changes' : 'Publish article') + '</button> ' +
+      (editing ? '<button class="btn" onclick="editing=null;render()">Cancel</button>' : '') + '</div>' +
+      '<table><tr><th>Date</th><th>Title</th><th>Status</th><th></th></tr>' +
+      D.blogs.map(function (p) {
+        return '<tr><td>' + new Date(p.created_at).toLocaleDateString() + '</td><td>' + esc(p.title) + '</td><td>' + (p.published ? 'Published' : 'Draft') + '</td>' +
+          '<td><button class="btn" onclick="editBlog(' + p.id + ')">Edit</button> <button class="btn" onclick="delBlog(' + p.id + ')">Delete</button></td></tr>';
+      }).join('') + '</table>';
+  } else if (tab === 'vids') {
+    h = '<div class="panel"><b>Add a YouTube video or Short</b><p class="note">Upload the video to your YouTube channel first, then paste its link here. It appears on the website straight away, with its YouTube thumbnail.</p>' +
+      '<label>YouTube link</label><input id="v-url" placeholder="https://www.youtube.com/watch?v=...  or  https://youtube.com/shorts/...">' +
+      '<label>Title (optional)</label><input id="v-title" maxlength="150">' +
+      '<label><input type="checkbox" id="v-short" style="width:auto"> This is a Short</label><br><br>' +
+      '<button class="btn" onclick="addVideo()">Add to website</button></div>' +
+      (D.videos.length ? D.videos.map(function (v) {
+        return '<div class="vcard"><img src="https://img.youtube.com/vi/' + esc(v.youtube_id) + '/mqdefault.jpg" alt=""><div><b>' + esc(v.title || '(no title)') + '</b></div>' +
+          '<div class="note">' + (v.kind === 'short' ? 'Short' : 'Video') + '</div><button class="btn" onclick="delVideo(' + v.id + ')">Remove</button></div>';
+      }).join('') : '<p class="note">No videos added yet.</p>');
+  } else if (tab === 'settings') {
+    var s = D.settings || {};
+    h = '<div class="panel"><b>Social media links</b><p class="note">These links are used in the website menu, footer and the Subscribe buttons. Use the full https:// link, or # to leave one blank.</p>' +
+      '<label>YouTube channel</label><input id="st-youtube" value="' + esc(s.youtube) + '">' +
+      '<label>Instagram</label><input id="st-instagram" value="' + esc(s.instagram) + '">' +
+      '<label>LinkedIn</label><input id="st-linkedin" value="' + esc(s.linkedin) + '">' +
+      '<button class="btn" onclick="saveSettings()">Save links</button></div>';
+  } else {
+    h = '<table><tr><th>Date</th><th>Challenge</th><th>Assistance</th><th>Service area</th></tr>' +
+      D.chats.map(function (c) { return '<tr><td>' + new Date(c.created_at).toLocaleString() + '</td><td>' + esc(c.topic) + '</td><td>' + esc(c.solution) + '</td><td>' + esc(c.service) + '</td></tr>'; }).join('') + '</table>';
+  }
+  document.getElementById('view').innerHTML = (flashMsg ? '<div class="flash' + (flashMsg.bad ? ' bad' : '') + '">' + esc(flashMsg.t) + '</div>' : '') + h;
+  flashMsg = null;
+}
+function val(id) { return document.getElementById(id).value; }
+function saveBlog() {
+  var body = { title: val('b-title'), summary: val('b-summary'), image: val('b-image'), body: val('b-body'), published: document.getElementById('b-pub').checked };
+  var req = editing ? api('/admin/api/blog/' + editing.id, 'PUT', body) : api('/admin/api/blog', 'POST', body);
+  req.then(function (d) {
+    if (!d.ok) return flash(d.error || 'Could not save.', true);
+    var was = editing; editing = null;
+    load().then(function () { flash(was ? 'Article updated.' : 'Article published.'); });
+  });
+}
+function editBlog(id) { api('/admin/api/blog/' + id).then(function (b) { editing = b; render(); window.scrollTo(0, 0); }); }
+function delBlog(id) { if (confirm('Delete this article permanently?')) api('/admin/api/blog/' + id, 'DELETE').then(function () { editing = null; load().then(function () { flash('Article deleted.'); }); }); }
+function addVideo() {
+  api('/admin/api/video', 'POST', { url: val('v-url'), title: val('v-title'), kind: document.getElementById('v-short').checked ? 'short' : 'video' })
+    .then(function (d) { if (!d.ok) return flash(d.error || 'Could not add.', true); load().then(function () { flash('Added. It is now live on the website.'); }); });
+}
+function delVideo(id) { if (confirm('Remove this video from the website? (It stays on YouTube.)')) api('/admin/api/video/' + id, 'DELETE').then(function () { load().then(function () { flash('Video removed from the website.'); }); }); }
+function saveSettings() {
+  api('/admin/api/settings', 'POST', { youtube: val('st-youtube'), instagram: val('st-instagram'), linkedin: val('st-linkedin') })
+    .then(function (d) { if (!d.ok) return flash(d.error || 'Could not save.', true); load().then(function () { flash('Links saved.'); }); });
+}
+function saveE(id) {
+  fetch('/admin/api/enquiry/' + id, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: document.getElementById('s' + id).value, notes: document.getElementById('n' + id).value }) }).then(load);
+}
+function delE(id) { if (confirm('Delete this enquiry?')) fetch('/admin/api/enquiry/' + id, { method: 'DELETE' }).then(load); }
+document.querySelectorAll('.tabs button').forEach(function (b) {
+  b.onclick = function () { document.querySelectorAll('.tabs button').forEach(function (x) { x.className = ''; }); b.className = 'on'; tab = b.dataset.t; editing = null; render(); };
+});
+load();
+</script>
+</body>
+</html>

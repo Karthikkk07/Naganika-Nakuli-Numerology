@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pay Online | Naganika, Nakuli Numerology</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="page-title"><div class="wrap"><h1>Pay Online</h1></div></div>
+<section class="block">
+  <div class="wrap grid" style="align-items:start">
+    <div class="card">
+      <h3>Indian customers (UPI, cards, netbanking)</h3>
+      <div class="field"><label for="pname">Your name</label><input id="pname"></div>
+      <div class="field"><label for="psvc">Service</label><select id="psvc"></select></div>
+      <div class="field"><label for="pamt">Amount (&#8377;)</label><input id="pamt" type="number" min="100" max="100000" value="5000"></div>
+      <button class="btn" id="pay">Pay with Razorpay</button>
+      <div class="msg" id="pmsg"></div>
+    </div>
+    <div class="card" id="intl">
+      <h3>International customers</h3>
+      <p>Pay with PayPal, then send us a message with your name and the service so we can confirm your booking.</p>
+      <a class="btn dark" id="paypal" href="#" target="_blank" rel="noopener" style="display:none">Pay with PayPal</a>
+      <p id="paypal-na" class="muted">PayPal is not set up yet. Please <a href="contact.html">contact us</a>.</p>
+    </div>
+  </div>
+</section>
+<script src="js/main.js"></script>
+<script src="js/services-data.js"></script>
+<script src="js/payment.js"></script>
+</body>
+</html>

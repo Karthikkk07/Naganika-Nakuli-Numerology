@@ -1,0 +1,9 @@
+node_modules/
+.env
+data/
+
+# Photos showing people's faces: kept off GitHub, add them to public/img on the server
+public/img/certificate-presentation.jpg
+public/img/ritual-portrait.jpg
+public/img/ritual-group.jpg
+public/img/ritual-fire.jpg

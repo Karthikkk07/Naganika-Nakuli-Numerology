@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Naganika, Nakuli Numerology | Numerology Consultancy in Bangalore</title>
+<meta name="description" content="Numerology and astrology consultation in Bengaluru by Anand Ram Palisetty, 13 years of experience. Date of birth analysis, Kundli matching, naming, career and corporate consultation.">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <h1>Naganika, Nakuli Numerology</h1>
+      <p><b>Your Trusted Numerology Guidance Partner</b></p>
+      <p>Date of Birth Analysis &middot; Personal Numerology Consultation &middot; Career, Educational and Future-related Guidance. Consult in person in Bengaluru, or over WhatsApp and phone.</p>
+      <a class="btn" href="contact.html">Book a Consultation</a>
+      <a class="btn alt" href="services.html">Our Services</a>
+    </div>
+    <img src="img/number9.jpg" alt="The mystical power of the number 9" loading="eager">
+  </div>
+</section>
+
+<section class="block">
+  <div class="wrap">
+    <h2>Our Core Services</h2>
+    <div class="grid grid4" id="home-svcs"></div>
+    <p style="margin-top:20px"><a class="btn dark" href="services.html">See all 12 services</a></p>
+  </div>
+</section>
+
+<section class="block" style="background:#fff">
+  <div class="wrap grid" style="align-items:center">
+    <div>
+      <h2>Meet Anand Ram Palisetty</h2>
+      <p>Numerologist &amp; Astrology Consultant with <b>13 years of experience</b>, trained in the K.P. System and Vedic astrology.</p>
+      <blockquote class="disclaimer">Astrology explores the wider picture &mdash; Samishti, the collective world and its cycles. Numerology focuses on the individual through numbers, including the date of birth.</blockquote>
+      <a class="btn dark" href="about.html">Read more</a>
+    </div>
+    <img src="img/certificate-presentation.jpg" alt="Certificate presentation" style="border-radius:12px" loading="lazy">
+  </div>
+</section>
+
+<section class="block yt-section">
+  <div class="wrap">
+    <h2>Watch Us on YouTube</h2>
+    <p>Watch our latest numerology videos and Shorts, and book a personal consultation whenever you're ready.</p>
+    <div class="grid" id="home-vids"></div>
+    <p style="margin-top:20px">
+      <a class="btn" data-net="youtube" href="https://www.youtube.com/" target="_blank" rel="noopener">Subscribe on YouTube</a>
+      <a class="btn dark" href="videos.html">All videos</a>
+      <a class="btn dark" href="contact.html">Book a Consultation</a>
+    </p>
+  </div>
+</section>
+
+<section class="block">
+  <div class="wrap">
+    <h2>Discover Your Life Path Number</h2>
+    <p>Add the digits of your date of birth and reduce to a single digit. Example: 24-07-1990 gives 2+4+0+7+1+9+9+0 = 32, then 3+2 = <b>5</b>.</p>
+    <form id="lp" class="card" style="max-width:420px">
+      <div class="field"><label for="dob">Your date of birth</label><input type="date" id="dob" required></div>
+      <button class="btn dark" type="submit">Calculate</button>
+      <p id="lp-out" style="font-weight:600;margin-bottom:0"></p>
+    </form>
+    <p><a href="blog.html">Read what each number from 1 to 9 means &rarr;</a></p>
+  </div>
+</section>
+
+<script src="js/main.js"></script>
+<script src="js/services-data.js"></script>
+<script src="js/youtube.js"></script>
+<script>
+// The 8 services shown on the home page (all 12 are on the Services page)
+var HOME_SERVICES = ['Marriage Horoscope & Compatibility', 'Kundli Matching', 'Corporate Consultation', 'Free Consultation for People in Need', 'Naming Consultation', 'Job Guidance', 'Career Guidance', 'Personal Numerology Reading'];
+document.getElementById('home-svcs').innerHTML = HOME_SERVICES.map(function (n) {
+  var s = SERVICES.filter(function (x) { return x.name === n; })[0];
+  return '<div class="card"><h3>' + s.name + '</h3><p>' + s.desc + '</p><p class="price">' +
+    (s.fee ? '&#8377;' + s.fee.toLocaleString('en-IN') + ' per consultation' : (s.free ? 'Free, subject to availability' : 'Contact for fee')) +
+    '</p><a class="btn dark" style="padding:8px 16px;font-size:.9rem" href="contact.html?service=' + encodeURIComponent(s.name) + '">Enquire</a></div>';
+}).join('');
+fetch('/api/videos').then(function (r) { return r.json(); }).then(function (all) {
+  renderVideos(document.getElementById('home-vids'), all.slice(0, 3), 'New videos coming soon.');
+}).catch(function () {});
+
+document.getElementById('lp').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var v = document.getElementById('dob').value; if (!v) return;
+  var n = v.replace(/\D/g, '').split('').reduce(function (a, b) { return a + +b; }, 0);
+  while (n > 9) n = String(n).split('').reduce(function (a, b) { return a + +b; }, 0);
+  document.getElementById('lp-out').innerHTML = 'Your number is ' + n + '. <a href="blog.html#n' + n + '">Read about number ' + n + '</a>';
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Videos | Naganika, Nakuli Numerology</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="page-title"><div class="wrap"><h1>Videos &amp; Shorts</h1></div></div>
+<section class="block">
+  <div class="wrap">
+    <p>Predictions, numerology tips, video testimonials and webinars from our YouTube channel.
+      <a class="btn" data-net="youtube" href="https://www.youtube.com/" target="_blank" rel="noopener" style="margin-left:8px">Subscribe on YouTube</a></p>
+    <h2>Videos</h2>
+    <div class="grid" id="vids"></div>
+    <h2 style="margin-top:40px">Shorts</h2>
+    <div class="grid" id="shorts"></div>
+    <p style="margin-top:32px" class="card"><b>Have a question about your own numbers?</b> Watching is a good start, and a personal consultation is better. <a class="btn dark" href="contact.html">Book a consultation</a></p>
+  </div>
+</section>
+<script src="js/main.js"></script>
+<script src="js/youtube.js"></script>
+<script>
+fetch('/api/videos').then(function (r) { return r.json(); }).then(function (all) {
+  renderVideos(document.getElementById('vids'), all.filter(function (v) { return v.kind !== 'short'; }), 'No videos yet. Please check back soon.');
+  renderVideos(document.getElementById('shorts'), all.filter(function (v) { return v.kind === 'short'; }), 'No Shorts yet. Please check back soon.');
+}).catch(function () {
+  document.getElementById('vids').innerHTML = '<p class="muted">Could not load videos right now.</p>';
+});
+</script>
+</body>
+</html>

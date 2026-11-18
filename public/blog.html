@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Numerology Blog: Life Path Numbers 1 to 9 | Naganika, Nakuli Numerology</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="page-title"><div class="wrap"><h1>Numerology Blog: The Significance of Numbers 1&ndash;9</h1></div></div>
+<section class="block" id="articles-sec" style="display:none;padding-bottom:0">
+  <div class="wrap">
+    <h2>Latest Articles</h2>
+    <div class="grid" id="posts"></div>
+  </div>
+</section>
+<section class="block">
+  <div class="wrap">
+    <p>In numerology, a Life Path number is found by adding the digits of your date of birth and reducing to a single digit (example: 24-07-1990 &rarr; 32 &rarr; 5). Different traditions calculate and interpret numbers differently; this is a symbolic framework for reflection.</p>
+    <div class="grid" id="nums"></div>
+    <h2 style="margin-top:40px">Spotlight: The Number 9</h2>
+    <img src="img/number9.jpg" alt="The mystical power of the number 9" style="border-radius:12px;max-width:760px" loading="lazy">
+    <p>Multiply any number by 9 and reduce the result, and you return to 9 (9&times;2 = 18 &rarr; 1+8 = 9). In numerology this recurring quality is linked to universal consciousness, compassion, completion and the ending of cycles.</p>
+  </div>
+</section>
+<script src="js/main.js"></script>
+<script>
+var N = [
+ ['The Leader / Innovator','Independence, ambition, pioneering spirit, strong willpower and executive ability.'],
+ ['The Mediator / Diplomat','Harmonious, sensitive, intuitive, a supportive partner and master of collaboration.'],
+ ['The Communicator / Creative','Self-expression, optimism, artistic talent, charisma and social enthusiasm.'],
+ ['The Builder / Organizer','Practicality, discipline, dedication, stability, order and a strong work ethic.'],
+ ['The Adventurer / Explorer','Freedom-loving, versatile, adaptable, energetic and a catalyst for change.'],
+ ['The Nurturer / Caregiver','Responsibility, compassion, domestic harmony, protective nature and healing energy.'],
+ ['The Seeker / Analyst','Intellectual depth, introspection, spiritual research, wisdom and analytical mastery.'],
+ ['The Powerhouse / Achiever','Financial intelligence, authority, material success, efficiency and leadership.'],
+ ['The Humanitarian / Visionary','Universal love, empathy, wisdom, selflessness and artistic completion.']
+];
+document.getElementById('nums').innerHTML = N.map(function (n, i) {
+  return '<div class="card" id="n' + (i + 1) + '"><div class="num">' + (i + 1) + '</div><h3>' + n[0] + '</h3><p>' + n[1] + '</p></div>';
+}).join('');
+
+var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+fetch('/api/blogs').then(function (r) { return r.json(); }).then(function (list) {
+  if (!list.length) return;
+  document.getElementById('articles-sec').style.display = '';
+  document.getElementById('posts').innerHTML = list.map(function (p) {
+    return '<div class="card">' + (p.image ? '<img src="' + esc(p.image) + '" alt="" style="border-radius:8px;margin-bottom:10px;width:100%;height:160px;object-fit:cover">' : '') +
+      '<p class="muted" style="margin:0">' + new Date(p.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) + '</p>' +
+      '<h3>' + esc(p.title) + '</h3><p>' + esc(p.summary) + '</p><a class="btn dark" href="blog-post.html?id=' + p.id + '">Read more</a></div>';
+  }).join('');
+}).catch(function () {});
+</script>
+</body>
+</html>

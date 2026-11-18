@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Article | Naganika, Nakuli Numerology</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="page-title"><div class="wrap"><h1 id="t">Article</h1></div></div>
+<section class="block">
+  <div class="wrap" style="max-width:780px">
+    <p class="muted" id="d"></p>
+    <img id="img" alt="" style="border-radius:12px;margin-bottom:18px;display:none">
+    <div id="body"></div>
+    <p style="margin-top:28px"><a href="blog.html">&larr; All articles</a> &nbsp; <a class="btn" href="contact.html">Book a Consultation</a></p>
+  </div>
+</section>
+<script src="js/main.js"></script>
+<script>
+var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+var id = new URLSearchParams(location.search).get('id');
+fetch('/api/blogs/' + encodeURIComponent(id)).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (p) {
+  document.title = p.title + ' | Naganika, Nakuli Numerology';
+  document.getElementById('t').textContent = p.title;
+  document.getElementById('d').textContent = new Date(p.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+  if (p.image) { var i = document.getElementById('img'); i.src = p.image; i.style.display = 'block'; }
+  document.getElementById('body').innerHTML = p.body.split(/\n{2,}/).map(function (para) { return '<p>' + esc(para).replace(/\n/g, '<br>') + '</p>'; }).join('');
+}).catch(function () {
+  document.getElementById('t').textContent = 'Article not found';
+  document.getElementById('body').innerHTML = '<p><a href="blog.html">Back to the blog</a></p>';
+});
+</script>
+</body>
+</html>

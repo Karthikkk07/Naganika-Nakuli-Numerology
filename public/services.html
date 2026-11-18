@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Services | Naganika, Nakuli Numerology</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="page-title"><div class="wrap"><h1>Our Consultation Services</h1></div></div>
+<section class="block">
+  <div class="wrap">
+    <p>Consult face to face in Bengaluru, or over WhatsApp and phone. Choose a service and send an enquiry, or pay online.</p>
+    <div class="grid" id="svc"></div>
+    <p class="disclaimer" style="margin-top:24px">Consultations offer perspective and reflection, not guarantees. Decisions should also consider facts, practical planning and professional advice where appropriate.</p>
+  </div>
+</section>
+<script src="js/main.js"></script>
+<script src="js/services-data.js"></script>
+<script>
+document.getElementById('svc').innerHTML = SERVICES.map(function (s) {
+  return '<div class="card"><h3>' + s.name + '</h3><p>' + s.desc + '</p><p class="price">' + (s.fee ? '&#8377;' + s.fee.toLocaleString('en-IN') + ' per consultation' : (s.free ? 'Free, subject to availability' : 'Contact for fee')) +
+    '</p><a class="btn dark" href="contact.html?service=' + encodeURIComponent(s.name) + '">Enquire</a>' +
+    (s.fee ? ' <a class="btn" href="payment.html?service=' + encodeURIComponent(s.name) + '&amount=' + s.fee + '">Pay</a>' : '') + '</div>';
+}).join('');
+</script>
+</body>
+</html>
